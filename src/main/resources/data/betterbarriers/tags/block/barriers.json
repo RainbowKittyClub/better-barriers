@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "betterbarriers:players_only_barrier",
+    "betterbarriers:admin_barrier",
+    "betterbarriers:one_way_barrier",
+    "betterbarriers:gamemode_barrier",
+    "betterbarriers:keyed_barrier"
+  ]
+}

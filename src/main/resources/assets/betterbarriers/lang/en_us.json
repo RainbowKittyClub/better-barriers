@@ -1,0 +1,15 @@
+{
+  "itemGroup.betterbarriers.barriers": "Better Barriers",
+  "block.betterbarriers.players_only_barrier": "Players-Only Barrier",
+  "block.betterbarriers.admin_barrier": "Admin Barrier",
+  "block.betterbarriers.one_way_barrier": "One-Way Barrier",
+  "block.betterbarriers.gamemode_barrier": "Gamemode Barrier",
+  "block.betterbarriers.gamemode_barrier.named": "%s %s Barrier",
+  "block.betterbarriers.gamemode_barrier.tooltip.rule": "Left click while sneaking to change to %s.",
+  "block.betterbarriers.gamemode_barrier.tooltip.mode": "Right click while sneaking to change gamemode.",
+  "betterbarriers.gamemode_rule.allow": "Allow",
+  "betterbarriers.gamemode_rule.block": "Block",
+  "block.betterbarriers.keyed_barrier": "Keyed Barrier",
+  "block.betterbarriers.keyed_barrier.tooltip.key": "Key Item: %s",
+  "block.betterbarriers.keyed_barrier.tooltip.unset": "Put the key item in your offhand and right-click while sneaking to set it."
+}

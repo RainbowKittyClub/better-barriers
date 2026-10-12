@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "betterbarriers:item/players_only_barrier"
+  }
+}
