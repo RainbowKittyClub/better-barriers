@@ -7,11 +7,14 @@ name a condition, and the matching permission node passes regardless:
 
 | Block | Passes | Bypass node |
 |---|---|---|
-| `players_only_barrier` | any player; blocks mobs, items, projectiles | none |
+| `players_only_barrier` | any player; mobs, items, projectiles and mounts each by game rule (S16) | none |
 | `one_way_barrier[facing]` | anything entering from behind, travelling toward `facing` | `betterbarriers.bypass.oneway` |
 | `admin_barrier` | nobody | `betterbarriers.bypass.admin` |
-| `gamemode_barrier[mode]` | players whose game mode is `mode` (survival, creative, adventure) | `betterbarriers.bypass.gamemode.<mode>` |
-| `keyed_barrier` (block entity `key`) | players holding the key item in either hand | `betterbarriers.bypass.keyed.<namespace>.<path>` |
+| `gamemode_barrier[mode,rule]` | `rule=allow`: players in `mode`; `rule=block`: everything but them (S12, S16) | `betterbarriers.bypass.gamemode.<mode>` |
+| `keyed_barrier` (block entity `lock`) | players holding a key listing its lock in either hand (S17) | `betterbarriers.bypass.keyed.<lock>` |
+
+This table is the design as it now stands; each stage below records the plan of its day. A mount or
+vehicle carrying a player goes as that player everywhere but players-only (S16).
 
 Every node falls back to op level 2 (`PermissionLevel.GAMEMASTERS`; S10 narrows that to the admin
 node) when no permission provider is loaded, through kalic0re `CommandPermissions.holds`. Vanilla
@@ -725,6 +728,93 @@ creative tabs, so the legs compare client copies; the first version failed becau
 the equal fresh stack into the held one, so the fresh one now goes into its own hotbar slot. Still
 to see in-world: the six entries in both tabs, the tab lines under each held gamemode barrier's
 name, none on a keyed barrier with a key.
+
+## S16 — Mounts, players-only game rules, air-only rule flip — **in progress**
+
+**Build.** From the user's README rewrite. A mount or vehicle carrying a player goes as that player
+on every barrier but players-only: the subject is the controlling passenger when a player, else
+any player aboard, since a minecart has no controller (`Entity.getControllingPassenger`; `Mob`'s
+returns only a mob, `Mob.java:221-224`). Players-only stops everything but players by default;
+four boolean rules, `betterbarriers:players_only.allow.{mobs,items,projectiles,mounts}`, flat under
+the mod id and registered straight into `BuiltInRegistries.GAME_RULE` (first built with kalic0re's
+`ComponentGameRules` as `betterbarriers.players_only:allow.…`, switched before any deploy; the lang
+key reads `gamerule.betterbarriers.players_only.allow.mobs` either way), each let one kind through: `Mob`, `ItemEntity`, `Projectile`, and any mover carrying a player. Gamemode
+`rule=block` now passes every non-player (only players in its mode stop); `rule=allow` still stops
+them. The sneak-left-click no longer refuses block and entity hits: they act as usual, and only a
+click in the air flips the rule. A swing counts when it starts a click (more than two ticks after
+the last) and no hit, use or item drop came within a tick before it; Fabric's attack and use
+callbacks and a HEAD hook on `handlePlayerAction` record those; every branch of that method
+returns early (`ServerGamePacketListenerImpl.java:1267-1320`), and the hook also covers the swing a
+Q drop makes (`Minecraft.java:1920-1922`).
+
+**Done when.** Legs: each of the four rules lets its kind through a players-only floor with the
+rule on and not with it off (a cow at speed 0 for mobs, the same cow carrying the bot for mounts);
+an item rests on a gamemode `rule=allow` floor and falls through `rule=block`; a sneaking hit on a
+block breaks it and on a pig damages it, neither flipping the rule, nor does a held button or a Q
+drop; a click in the air flips it both ways. In-world: riding a horse through each barrier type.
+
+### As built
+
+As planned, plus one mixin: an arrow decides it is stuck by asking the block's entity-less
+collision shape (`AbstractArrow.java:181`), which a better barrier answers as solid, so with
+`allow.projectiles` on an arrow still stopped 0.12 inside the floor. `AbstractArrowMixin` wraps that
+one call to ask as the arrow for better barriers only. 53 of 53 legs pass, "moved wrongly" 0; a bot
+joining as a vanilla 26.1 client is unaffected by the four new game-rule registry entries. Two
+harness fixes: a block hit now really breaks the stone, so the leg hits the one beside the bot's
+own (it fell through the platform first), and a Q drop sent as a raw packet is not predicted by
+mineflayer, so the leg reads the server's count. Still to see in-world: riding a horse through
+each barrier type, and the players-only rules from `/gamerule`.
+
+Replaced after the 2026-10-12 review: telling a hit's swing from an air click by Fabric's attack
+and use callbacks missed hits whenever an earlier listener (a claim mod's FAIL) stopped the event,
+and adventure-mode block hits, which send no packet at all. A swing now counts only while the
+player aims at nothing in reach, the server mirroring the client's own crosshair test
+(`LocalPlayer.java:1260-1279`) with barriers solid for an editor shown stand-ins; the callbacks,
+the click gap and the use record are gone, the Q-drop record stays. Subjects also look past
+direct passengers (`getIndirectPassengers`), for a player on a mob in a minecart.
+
+## S17 — Locks instead of key item types — **in progress**
+
+**Build.** Matching an item type meant any stick opened a stick-keyed door, and names are no
+better: an anvil writes a plain custom name (`AnvilMenu.java:289`). A keyed barrier now holds one
+lock name, and a key is any item whose custom data lists it,
+`custom_data={betterbarriers:{locks:["vault"]}}`, which survival play cannot write; a list, so one
+key can open several locks. Names ignore case for A-Z only: one fold, A-Z to a-z and nothing else,
+serves the block entity's and the item component's codec (stored folded), the walk-through match
+and the off-hand step. `toLowerCase` and `equalsIgnoreCase` each also fold a few non-ASCII letters
+(the long s, the dotted capital I) and disagree on which, which had made a key that opened a
+barrier unusable from the off hand. Each hand's list is read in place through
+`mixin/CustomDataAccessor`, since `CustomData` hands out only copies (`CustomData.java:61`) and its
+`matchedBy` compares strings exactly (`CustomData.java:30`). Items survival can copy with their data never count, item
+tag `betterbarriers:copyable_in_survival`: book cloning (`BookCloningRecipe.java:137`) and banner
+copying (`BannerDuplicateRecipe.java:104`) copy the whole stack, the cartography table copies maps
+(`CartographyTableMenu.java:152`), and signing a book and quill keeps its data
+(`ServerGamePacketListenerImpl.java:1014`). Lock names, once lowercased, are `a-z 0-9 _ -` in
+dot-separated parts, refused otherwise by that same codec, so
+`betterbarriers.bypass.keyed.<lock>` is a well-formed node and `keyed.vault.*` covers
+`vault.east`. Sneak-use with a key in the off hand sets the barrier item's lock, the next of the
+key's locks on each use; an item that is no key, or a copyable one, is refused on the action bar.
+Item-type keys, the `betterbarriers:key` component and the per-item nodes are gone.
+
+**Done when.** Legs: a key to the lock passes and empty hands stop; a plain stick stops, a key to
+two locks passes, a book and quill carrying the lock stops; the lock node and its `bbtest.*`
+wildcard pass empty-handed; a lock-less barrier stops a key; `/data get block` shows the lock; a
+name outside the set is refused on block and item; sneak-use cycles a two-lock key's locks and
+refuses a book and a plain stick; pick-block keeps the lock.
+
+### As built
+
+As planned; 56 of 56 legs pass, "moved wrongly" 0, and a 10-bot load run crosses the lock-keyed
+walls with a stick carrying the lock, no bot moved back. `/setblock` with an invalid lock name
+reports "Could not set the block". The sneak-use legs first failed after one use: mineflayer never
+sends the `tick_end` packet a 26.x client ends each tick with, and Polymer refuses every item use
+after a Polymer item's until one arrives (`ServerGamePacketListenerImpMixin` `preventItemUse`,
+reset in `handleClientTickEnd`). The harness now sends it (`lib/flyer.js` `endClientTicks`); the
+trap is in `docs/TESTING.md`. Ignoring case came after, at the user's word: its first build threw
+in the off-hand cycle (an immutable list's `indexOf(null)` for a lock-less item), which the server
+logs as a suppressed packet error, so in game it looked like a refusal; a leg now fails on any
+"Failed to handle packet" line in the run. Still to see in-world: setting a lock from a key in the
+off hand.
 
 ## Reference: verified signatures
 
