@@ -87,7 +87,7 @@ public final class BarrierSync {
         BarrierViewer viewer = BarrierViewers.of(player);
         viewer.enterLevel(level);
         boolean editing = BetterBarrierItem.isEditing(player);
-        boolean standIn = editing && PolymerResourcePackUtils.hasMainPack(player.connection);
+        boolean standIn = showsStandIns(player);
         BarrierSprites sprites = viewer.sprites(player, standIn);
         Entity mover = player.getRootVehicle();
         AABB region = mover.getBoundingBox().inflate(reach(player, mover, editing));
@@ -185,6 +185,15 @@ public final class BarrierSync {
             }
             entries.remove();
         }
+    }
+
+    /**
+     * Whether {@code player}'s client is shown open barriers as targetable light stand-ins: an
+     * editor with the resource pack. Every other client is shown them as air.
+     */
+    public static boolean showsStandIns(ServerPlayer player) {
+        return BetterBarrierItem.isEditing(player)
+                && PolymerResourcePackUtils.hasMainPack(player.connection);
     }
 
     // How far ahead of the player the client state must already be right: their speed over a few
