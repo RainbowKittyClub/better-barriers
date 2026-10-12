@@ -31,6 +31,7 @@ public final class BetterBarriers implements ModInitializer {
     public void onInitialize() {
         text = FallbackText.load(MOD_ID);
         BarrierComponents.init();
+        BarrierGameRules.init();
         BarrierBlocks.init();
         BarrierSync.register();
         LeftClicks.register();

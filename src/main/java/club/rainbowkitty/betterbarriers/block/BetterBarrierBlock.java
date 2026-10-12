@@ -65,8 +65,8 @@ public abstract class BetterBarrierBlock extends BarrierBlock implements Polymer
     }
 
     /**
-     * This type's rule. {@code mover} is the colliding entity; {@code subject} is who decides,
-     * the controlling player when {@code mover} is their vehicle, else {@code mover} itself.
+     * This type's rule. {@code mover} is the colliding entity; {@code subject} is who decides: the
+     * player aboard when {@code mover} is a mount or vehicle carrying one, else {@code mover}.
      */
     protected abstract boolean passes(BlockState state, BlockPos pos, Entity mover, Entity subject);
 
@@ -105,9 +105,18 @@ public abstract class BetterBarrierBlock extends BarrierBlock implements Polymer
         return substitute(state, defaultOpen(), false);
     }
 
-    /** The entity whose permissions, mode and hands decide: a rider over its vehicle. */
-    static Entity subjectOf(Entity mover) {
-        return mover.getControllingPassenger() instanceof ServerPlayer player ? player : mover;
+    // The entity whose permissions, mode and hands decide: the player steering a mount, else any
+    // player aboard however high (a minecart has no controller), else the mover itself.
+    private static Entity subjectOf(Entity mover) {
+        if (mover.getControllingPassenger() instanceof ServerPlayer player) {
+            return player;
+        }
+        for (Entity passenger : mover.getIndirectPassengers()) {
+            if (passenger instanceof ServerPlayer player) {
+                return player;
+            }
+        }
+        return mover;
     }
 
     @Override

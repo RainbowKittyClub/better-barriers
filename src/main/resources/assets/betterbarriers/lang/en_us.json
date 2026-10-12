@@ -11,5 +11,13 @@
   "betterbarriers.gamemode_rule.block": "Block",
   "block.betterbarriers.keyed_barrier": "Keyed Barrier",
   "block.betterbarriers.keyed_barrier.tooltip.key": "Key Item: %s",
-  "block.betterbarriers.keyed_barrier.tooltip.unset": "Put the key item in your offhand and right-click while sneaking to set it."
+  "block.betterbarriers.keyed_barrier.tooltip.unset": "Put the key item in your offhand and right-click while sneaking to set it.",
+  "gamerule.betterbarriers.players_only.allow.mobs": "Mobs Pass Players-Only Barriers",
+  "gamerule.betterbarriers.players_only.allow.mobs.description": "Mobs walk through players-only barriers",
+  "gamerule.betterbarriers.players_only.allow.items": "Items Pass Players-Only Barriers",
+  "gamerule.betterbarriers.players_only.allow.items.description": "Dropped items fall and slide through players-only barriers",
+  "gamerule.betterbarriers.players_only.allow.projectiles": "Projectiles Pass Players-Only Barriers",
+  "gamerule.betterbarriers.players_only.allow.projectiles.description": "Arrows, snowballs and other projectiles fly through players-only barriers",
+  "gamerule.betterbarriers.players_only.allow.mounts": "Mounts Pass Players-Only Barriers",
+  "gamerule.betterbarriers.players_only.allow.mounts.description": "A mount or vehicle carrying a player passes players-only barriers with them"
 }

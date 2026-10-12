@@ -18,10 +18,10 @@ import club.rainbowkitty.betterbarriers.BarrierPermissions;
 import club.rainbowkitty.betterbarriers.item.GameModeBarrierItem;
 
 /**
- * A barrier for players by game mode: under {@code rule=allow} only players in its mode pass, under
- * {@code rule=block} every player but those in its mode does; a player holding
- * {@code betterbarriers.bypass.gamemode.<mode>} passes either way, and nothing else ever does. No
- * spectator mode: spectators collide with nothing.
+ * A barrier for players by game mode: under {@code rule=allow} only players in its mode pass, and
+ * nothing else does; under {@code rule=block} only players in its mode stop, and everything else
+ * passes. A player holding {@code betterbarriers.bypass.gamemode.<mode>} passes either way, and a
+ * mount carrying a player goes as they do. No spectator mode: spectators collide with nothing.
  */
 public final class GameModeBarrierBlock extends BetterBarrierBlock {
     public static final MapCodec<BarrierBlock> CODEC = simpleCodec(GameModeBarrierBlock::new);
@@ -45,7 +45,7 @@ public final class GameModeBarrierBlock extends BetterBarrierBlock {
     @Override
     protected boolean passes(BlockState state, BlockPos pos, Entity mover, Entity subject) {
         if (!(subject instanceof ServerPlayer player)) {
-            return false;
+            return state.getValue(RULE) == GameModeRule.BLOCK;
         }
         GameType mode = state.getValue(MODE);
         boolean inMode = player.gameMode() == mode;
