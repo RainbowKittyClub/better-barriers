@@ -1,85 +1,64 @@
 # Better Barriers
 
-Five barrier blocks that each let *some* things through. A vanilla barrier stops everything; these
-name who passes, and a permission node lets anyone else through. Server-side: vanilla clients need
-nothing installed.
+ ### Players-only Barrier
 
-## The barriers
+ Only lets players through, stops all other entities including mobs, items, projectiles and mounts.
 
-| Block | Who passes | Bypass node |
-| --- | --- | --- |
-| `betterbarriers:players_only_barrier` | every player; mobs, items and projectiles stop | none |
-| `betterbarriers:one_way_barrier[facing=…]` | anything travelling toward `facing`, never back | `betterbarriers.bypass.oneway` |
-| `betterbarriers:admin_barrier` | nobody | `betterbarriers.bypass.admin` |
-| `betterbarriers:gamemode_barrier[mode=…,rule=…]` | `rule=allow`: players whose game mode is `mode` (`survival`, `creative`, `adventure`); `rule=block`: every player but those | `betterbarriers.bypass.gamemode.<mode>` |
-| `betterbarriers:keyed_barrier` | players holding the key item in either hand | `betterbarriers.bypass.keyed.<namespace>.<path>` |
+  Can be configured with gamerules:
+   - `betterbarriers:players_only.allow.mobs`
+   - `betterbarriers:players_only.allow.items`
+   - `betterbarriers:players_only.allow.projectiles`
+   - `betterbarriers:players_only.allow.mounts`
 
-A rider passes where their mount would not: the player steering a horse or boat is the one asked.
-All five are waterloggable, unbreakable in survival, immune to the wither and dragon, and never
-suffocate anything standing inside them.
+  ### One-Way Barrier
 
-**Permission nodes** are asked through fabric-permissions-api when a provider such as LuckPerms is
-installed. Operators (level 2) pass admin barriers unless the admin node is denied. Every other
-barrier holds operators to its rule like anyone else until its node is granted, so an op can test
-a one-way gate, a gamemode zone or a locked door as a player would. Without a permissions mod,
-only the admin barrier has a way through. The keyed node spells the item id with dots:
-`betterbarriers.bypass.keyed.minecraft.tripwire_hook`.
+  Only allows entities to pass through in the direction it's facing.
 
-## Placing them
+  Can be bypassed with `betterbarriers.bypass.oneway`.
 
-There are no recipes. For clients running Polymer, the items are in their own "Better Barriers"
-creative tab, shown with the gamemode barrier, and in vanilla's Operator Utilities tab, the
-gamemode barrier once per mode and rule. Each one has an item that looks like a vanilla barrier:
+  ### Admin Barrier
 
-```
-/give @s betterbarriers:players_only_barrier
-/give @s betterbarriers:gamemode_barrier[betterbarriers:gamemode="adventure",betterbarriers:gamemode_rule="block"]
-/give @s betterbarriers:keyed_barrier[betterbarriers:key="minecraft:tripwire_hook"]
-```
+  Only allows players with OP level 2+ or `betterbarriers.bypass.admin`.
 
-- A **one-way barrier** is passable the way you face when placing it. In commands use `facing`:
-  `/fill … betterbarriers:one_way_barrier[facing=east]`.
-- A **gamemode barrier** item is named for what it places, such as "Allow Creative Barrier";
-  it starts as allow, creative. Sneak and right-click in the air to cycle survival, creative,
-  adventure; sneak and left-click anywhere to switch between allow and block (a block or creature
-  you were aiming at is left alone, and holding the button switches once). In commands:
-  `[mode=adventure,rule=block]`. Mobs and items never pass a gamemode barrier.
-- A **keyed barrier** item has no key until you set one: hold the key in your off hand and
-  sneak-use the barrier item on nothing. In commands the key is block-entity data:
-  `/setblock ~ ~ ~ betterbarriers:keyed_barrier{key:"minecraft:tripwire_hook"}`. A keyed barrier
-  with no key opens for nobody. The key matches the item type only, not its name or data.
+  ### Gamemode Barrier
+
+  Allows or denies all players of a specific gamemode.
+
+  The block barrier blocks only players of the specified gamemode, allows all other entities.
+  The allow barrier only allows players of the specified gamemode and blocks all other entities.
+
+  Players with `betterbarriers.bypass.gamemode.[adventure/creative/survival]` permissions node
+  are able to bypass.
+
+  ### Keyed Barrier
+
+  Anyone holding the associated key item in either hand is able to pass.
+
+  Bypass for a specific lock ID can be configured with the permission node: `betterbarriers.bypass.keyed.<lock_name>`
+  Keyed barrier lock IDs should be unique, any item with the same lock value will allow passge through the barrier.
 
 ## Editing
 
-Hold any Better Barriers item in your main hand in creative mode. Every barrier within 16 blocks
-shows its sprite, and you can target, break and pick-block any of them, while they still let you
-through or stop you exactly as they would without the item, so you can build and test together.
+Editing requires the resource pack. Passable barriers in edit mode are replaced with the level-0
+light block for selectability. Each barrier has its own icon in edit mode that distinguishes it
+from the others. Editing can be done by holding a barrier item.
 
-A one-way barrier's arrow points the way it lets you through, its broad side toward your left and
-right as you placed it, readable from either side; an up or down arrow turns to face you. The
-items show their sprites in your inventory too.
+- A **one-way barrier**: In commands use `betterbarriers:one_way_barrier[facing=east]`.
 
-This needs the server's resource pack. It hides the marker of level-0 light blocks, since your
-client is shown open barriers as those while you edit, so a real level-0 light block shows no
-marker to anyone with the pack. Without the pack you get vanilla barrier items and markers, and
-only the barriers that stop you can be targeted.
+- A **gamemode barrier** item is named for what it places, such as "Allow Creative Barrier";
+  it starts as allow, creative. Sneak and right-click in the air to cycle survival, creative,
+  adventure; sneak and left-click in the air to switch between allow and block.
+  In commands: `betterbarriers:gamemode_barrier[mode=adventure,rule=block]`
 
-## Notes
-
-- A player who walks through a one-way barrier and turns straight back within one network round
-  trip is bounced once by the server before their client learns the barrier closed behind them.
-- Picking any barrier with middle-click gives an item with its settings: a keyed barrier's key,
-  a gamemode barrier's mode and rule.
-- A keyed barrier's key is per block. To change a placed one, `/data merge block … {key:"…"}` or
-  replace it.
-- Every block, item, block-entity type and data component this mod registers is a Polymer
-  server-side entry, hidden from Fabric's registry sync, so a client without the mod connects
-  whether it runs Fabric or not.
+- A **keyed barrier** requires a key to be set before placing: hold the key in your off hand and
+  right-click the air while sneaking. The key is any item that has the `custom_data={betterbarriers:{locks:[]}}`
+  NBT data. `locks:[]` can be more than one value like `locks:["front_door", "castle.gate.east", "castle.gate.west"]`.
+  Keys cannot be copyable items like writable/written books, maps, or banners.
+  In commands: `betterbarriers:keyed_barrier{lock:"front_door"}`.
 
 ## Installing
 
 Drop `betterbarriers-<version>.jar` into `mods/`. Requires Fabric API and Polymer (`polymer-core`).
-Vanilla clients work unmodified and are offered no resource pack by this mod.
 
 ## Building
 
