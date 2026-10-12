@@ -4,13 +4,9 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.GameType;
 
 import club.rainbowkitty.betterbarriers.sync.BarrierViewer;
@@ -26,7 +22,7 @@ public final class BarrierPermissions {
     public static final String ADMIN = ROOT + "admin";
     public static final String ONE_WAY = ROOT + "oneway";
     private static final Map<GameType, String> GAMEMODE = new EnumMap<>(GameType.class);
-    private static final Map<Item, String> KEYED = new HashMap<>();
+    private static final Map<String, String> KEYED = new HashMap<>();
 
     static {
         for (GameType mode : GameType.values()) {
@@ -42,12 +38,9 @@ public final class BarrierPermissions {
         return GAMEMODE.get(mode);
     }
 
-    /** The node that passes a keyed barrier whose key is {@code item}: its id with dots. */
-    public static String keyed(Holder<Item> item) {
-        return KEYED.computeIfAbsent(item.value(), value -> {
-            Identifier id = BuiltInRegistries.ITEM.getKey(value);
-            return ROOT + "keyed." + id.getNamespace() + "." + id.getPath().replace('/', '.');
-        });
+    /** The node that passes a keyed barrier whose lock is {@code lock}. */
+    public static String keyed(String lock) {
+        return KEYED.computeIfAbsent(lock, name -> ROOT + "keyed." + name);
     }
 
     /**

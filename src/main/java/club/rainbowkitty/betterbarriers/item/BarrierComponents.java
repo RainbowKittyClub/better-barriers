@@ -3,14 +3,13 @@ package club.rainbowkitty.betterbarriers.item;
 import com.mojang.serialization.DataResult;
 import eu.pb4.polymer.core.api.other.PolymerComponent;
 
-import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.GameType;
 
 import club.rainbowkitty.betterbarriers.BetterBarriers;
+import club.rainbowkitty.betterbarriers.block.BarrierLocks;
 import club.rainbowkitty.betterbarriers.block.GameModeBarrierBlock;
 import club.rainbowkitty.betterbarriers.block.GameModeRule;
 
@@ -23,15 +22,14 @@ public final class BarrierComponents {
     /** Whether a gamemode barrier item places an allow or a block barrier. */
     public static final DataComponentType<GameModeRule> GAMEMODE_RULE = register("gamemode_rule",
             DataComponentType.<GameModeRule>builder().persistent(GameModeRule.CODEC).build());
-    /** The item a keyed barrier item places as the key. */
-    public static final DataComponentType<Holder<Item>> KEY = register("key",
-            DataComponentType.<Holder<Item>>builder()
-                    .persistent(Item.CODEC).build());
+    /** The lock a keyed barrier item places. */
+    public static final DataComponentType<String> LOCK = register("lock",
+            DataComponentType.<String>builder().persistent(BarrierLocks.CODEC).build());
 
     static {
         // Server-side only: hidden from Fabric's registry sync, so a client without this mod is
         // not turned away over unknown component types, and never sent inside an item stack.
-        PolymerComponent.registerDataComponent(GAMEMODE, GAMEMODE_RULE, KEY);
+        PolymerComponent.registerDataComponent(GAMEMODE, GAMEMODE_RULE, LOCK);
     }
 
     private BarrierComponents() {

@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:writable_book",
+    "minecraft:written_book",
+    "minecraft:filled_map",
+    "#minecraft:banners"
+  ]
+}

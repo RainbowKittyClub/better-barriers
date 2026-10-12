@@ -4,12 +4,9 @@ import com.mojang.serialization.MapCodec;
 import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BarrierBlock;
 import net.minecraft.world.level.block.EntityBlock;
@@ -20,9 +17,9 @@ import club.rainbowkitty.betterbarriers.BarrierPermissions;
 import club.rainbowkitty.betterbarriers.item.BarrierComponents;
 
 /**
- * A barrier only a player holding its key item, in either hand, walks through, or one holding
- * {@code betterbarriers.bypass.keyed.<namespace>.<path>} for that item. With no key set it opens
- * for nobody.
+ * A barrier only a player holding a key for its lock, in either hand, walks through, or one holding
+ * {@code betterbarriers.bypass.keyed.<lock>} ({@link BarrierLocks}). With no lock set it opens for
+ * nobody.
  */
 public final class KeyedBarrierBlock extends BetterBarrierBlock implements EntityBlock {
     public static final MapCodec<BarrierBlock> CODEC = simpleCodec(KeyedBarrierBlock::new);
@@ -36,28 +33,25 @@ public final class KeyedBarrierBlock extends BetterBarrierBlock implements Entit
         return CODEC;
     }
 
-    // The key of the keyed barrier at `pos`, or null for none or no such block.
-    private static @Nullable Holder<Item> keyAt(BlockGetter level, BlockPos pos) {
-        return level.getBlockEntity(pos) instanceof KeyedBarrierBlockEntity entity
-                ? entity.key() : null;
-    }
-
     @Override
     protected boolean passes(BlockState state, BlockPos pos, Entity mover, Entity subject) {
-        if (!(subject instanceof ServerPlayer player)) {
+        if (!(subject instanceof ServerPlayer player)
+                || !(mover.level().getBlockEntity(pos) instanceof KeyedBarrierBlockEntity entity)
+                || entity.lock() == null) {
             return false;
         }
-        Holder<Item> key = keyAt(mover.level(), pos);
-        return key != null && (player.isHolding(key.value())
-                || BarrierPermissions.bypass(player, BarrierPermissions.keyed(key)));
+        return entity.opens(player.getMainHandItem()) || entity.opens(player.getOffhandItem())
+                || BarrierPermissions.bypass(player, BarrierPermissions.keyed(entity.lock()));
     }
 
-    // A plain pick carries no block data, so the key goes onto the item here.
+    // A plain pick carries no block data, so the lock goes onto the item here.
     @Override
     protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state,
             boolean includeData) {
         ItemStack stack = super.getCloneItemStack(level, pos, state, includeData);
-        stack.set(BarrierComponents.KEY, keyAt(level, pos));
+        if (level.getBlockEntity(pos) instanceof KeyedBarrierBlockEntity entity) {
+            stack.set(BarrierComponents.LOCK, entity.lock());
+        }
         return stack;
     }
 
