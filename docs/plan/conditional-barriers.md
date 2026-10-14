@@ -816,6 +816,38 @@ logs as a suppressed packet error, so in game it looked like a refusal; a leg no
 "Failed to handle packet" line in the run. Still to see in-world: setting a lock from a key in the
 off hand.
 
+## S18 — Rain through barriers — **in progress**
+
+**Build.** A client draws rain and snow down to the top block its `MOTION_BLOCKING` height map
+counts (`WeatherEffectRenderer.java:77`), places splashes and rain sound from the same map
+(`ClientLevel.java:355`), and takes that map as the chunk packet carries it
+(`LevelChunk.java:537`). The server's map counts every barrier, since the entity-less shape is a
+full cube, so rain stopped on all five types: players-only too, though its client holds air there.
+`mixin/ClientboundLevelChunkPacketDataMixin` hands each new chunk packet's `MOTION_BLOCKING` and
+`MOTION_BLOCKING_NO_LEAVES` to `sync/BarrierHeightmaps`, which lowers every column topped by a
+barrier to the first counted block below its barriers. The server's own maps are untouched, so the
+server still finds it dry under a barrier roof (cauldrons, fire, entities in rain). Vanilla
+`minecraft:barrier` is left alone, so rooms kept dry with it stay dry.
+
+The client updates its maps itself on each block change (`LevelChunk.java:286`,
+`Heightmap.update`), where a barrier counts, so a barrier sent at or above a column's top raises
+that column again until the chunk is resent: a correction to solid, a revert after an admitted
+player walks off, a barrier placed. Particles are out of reach: they collide with the client's
+blocks (`Particle.java:155`), the same ones it predicts the player's movement from.
+
+**Done when.** In rain, under a roof of each type, rain falls through and splashes on the floor; a
+vanilla barrier roof beside them stays dry; a player let through a roof (creative under the
+gamemode roof, an op under the admin roof) who stands under it and walks off sees that patch stop
+rain again, for them alone (the limit above), and relogging clears it.
+
+### As built
+
+As planned. A bot decoding the chunk packets' `MOTION_BLOCKING` over six test roofs read the
+vanilla barrier roof as the top (y −56) and all five types as the floor (y −61), same as open
+grass. In-world, rain falls through every type, including where the client holds a solid barrier:
+weather follows the height map alone. Particles still stop on those, as expected. Still to see
+in-world: the patch an admitted player leaves dry, and relogging clearing it.
+
 ## Reference: verified signatures
 
 - `BlockBehaviour.getCollisionShape(BlockState, BlockGetter, BlockPos, CollisionContext)` :327,
@@ -840,6 +872,10 @@ off hand.
   `ClientboundSectionBlocksUpdatePacket.runUpdates(BiConsumer)` :72;
   `ClientboundLevelChunkWithLightPacket.getX()/getZ()` :58,62;
   `ClientboundForgetLevelChunkPacket(ChunkPos pos)` record.
+- `ClientboundLevelChunkPacketData(LevelChunk)` :36 fills `heightmaps` (`Map<Heightmap.Types,
+  long[]>`, private final) with clones of the server's raw data (:40);
+  `SimpleBitStorage(int, int, long[])` :244 wraps the array it is given; `Heightmap` packs 256
+  columns at `Mth.ceillog2(height + 1)` bits, index `x + z * 16`, value `y - minY` (:39, :122, :142).
 - Polymer: `PacketContext` is Fabric's, no `getPlayer()`; `PolymerCommonUtils.getPlayer(ctx)` is
   nullable (`PolymerCommonUtils.java:207`). `PolymerItemUtils.createItemStack` sets the client
   `ITEM_NAME` from the server stack's component (`:455-456`), so a translatable-with-fallback name
