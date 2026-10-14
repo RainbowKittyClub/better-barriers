@@ -22,6 +22,7 @@ abstract class ClientboundLevelChunkPacketDataMixin {
     @Final
     private Map<Heightmap.Types, long[]> heightmaps;
 
+    // Lowers the new packet's rain height map past dry barriers.
     @Inject(method = "<init>(Lnet/minecraft/world/level/chunk/LevelChunk;)V", at = @At("RETURN"))
     private void betterbarriers$skipBarriers(LevelChunk chunk, CallbackInfo ci) {
         BarrierHeightmaps.skipBarriers(chunk, this.heightmaps);
