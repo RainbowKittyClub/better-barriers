@@ -823,9 +823,10 @@ counts (`WeatherEffectRenderer.java:77`), places splashes and rain sound from th
 (`ClientLevel.java:355`), and takes that map as the chunk packet carries it
 (`LevelChunk.java:537`). The server's map counts every barrier, since the entity-less shape is a
 full cube, so rain stopped on all five types: players-only too, though its client holds air there.
-`mixin/ClientboundLevelChunkPacketDataMixin` hands each new chunk packet's `MOTION_BLOCKING` and
-`MOTION_BLOCKING_NO_LEAVES` to `sync/BarrierHeightmaps`, which lowers every column topped by a
-barrier to the first counted block below its barriers. The server's own maps are untouched, so the
+`mixin/ClientboundLevelChunkPacketDataMixin` hands each new chunk packet's `MOTION_BLOCKING` map
+to `sync/BarrierHeightmaps`, which lowers every column topped by a barrier to the first counted
+block below its barriers. The client reads `MOTION_BLOCKING_NO_LEAVES` only for F3 and the dragon
+egg (`EnderDragonRenderer.java:222`), so that map keeps them. The server's own maps are untouched, so the
 server still finds it dry under a barrier roof (cauldrons, fire, entities in rain). Vanilla
 `minecraft:barrier` is left alone, so rooms kept dry with it stay dry.
 
