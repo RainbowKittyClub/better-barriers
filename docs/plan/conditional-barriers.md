@@ -816,7 +816,7 @@ logs as a suppressed packet error, so in game it looked like a refusal; a leg no
 "Failed to handle packet" line in the run. Still to see in-world: setting a lock from a key in the
 off hand.
 
-## S18 — Rain through barriers — **in progress**
+## S18 — Rain through barriers — **done**
 
 **Build.** A client draws rain and snow down to the top block its `MOTION_BLOCKING` height map
 counts (`WeatherEffectRenderer.java:77`), places splashes and rain sound from the same map
@@ -824,22 +824,25 @@ counts (`WeatherEffectRenderer.java:77`), places splashes and rain sound from th
 (`LevelChunk.java:537`). The server's map counts every barrier, since the entity-less shape is a
 full cube, so rain stopped on all five types: players-only too, though its client holds air there.
 `mixin/ClientboundLevelChunkPacketDataMixin` hands each new chunk packet's `MOTION_BLOCKING` map
-to `sync/BarrierHeightmaps`, which lowers every column topped by a barrier to the first counted
-block below its barriers. The client reads `MOTION_BLOCKING_NO_LEAVES` only for F3 and the dragon
-egg (`EnderDragonRenderer.java:222`), so that map keeps them. The server's own maps are untouched, so the
-server still finds it dry under a barrier roof (cauldrons, fire, entities in rain). Vanilla
-`minecraft:barrier` is left alone, so rooms kept dry with it stay dry.
+to `sync/BarrierHeightmaps`, which lowers every column topped by a dry barrier to the first block
+below that counts. A waterlogged barrier still counts, for its water, and dimensions without
+weather are skipped. The client reads `MOTION_BLOCKING_NO_LEAVES` only for F3 and the dragon egg
+(`EnderDragonRenderer.java:222`), so that map keeps them. The server's own maps are untouched,
+so the server still finds it dry under a barrier roof (cauldrons, fire, entities in rain).
+Vanilla `minecraft:barrier` is left alone, so rooms kept dry with it stay dry.
 
-The client updates its maps itself on each block change (`LevelChunk.java:286`,
-`Heightmap.update`), where a barrier counts, so a barrier sent at or above a column's top raises
-that column again until the chunk is resent: a correction to solid, a revert after an admitted
-player walks off, a barrier placed. Particles are out of reach: they collide with the client's
-blocks (`Particle.java:155`), the same ones it predicts the player's movement from.
+The client updates its maps itself on each block change at or above a column's top
+(`LevelChunk.java:286`, `Heightmap.update`), where a barrier counts, so the column rises again
+until the chunk is resent: a barrier sent where the client held something else (a correction to
+solid, a revert after an admitted player walks off, a barrier placed), or a block built on a roof
+and removed. Resending the state the client already holds changes nothing (`LevelChunk.java:282`).
+Particles are out of reach: they collide with the client's blocks (`Particle.java:155`), the same
+ones it predicts the player's movement from.
 
 **Done when.** In rain, under a roof of each type, rain falls through and splashes on the floor; a
-vanilla barrier roof beside them stays dry; a player let through a roof (creative under the
-gamemode roof, an op under the admin roof) who stands under it and walks off sees that patch stop
-rain again, for them alone (the limit above), and relogging clears it.
+vanilla barrier roof beside them stays dry, and so does a waterlogged barrier, at its water. In
+creative under the gamemode roof, F3 (`CH … M:`) reads the floor; switching to survival there
+re-sends the barrier and raises it to the roof, for that player alone.
 
 ### As built
 
@@ -859,7 +862,13 @@ server has no such tag; the dev ViaFabric's ViaVersion 5.12.1-SNAPSHOT adds none
 The limit is accepted: holding back reverts outside reach would add more weight than the
 patches are worth. Rain stays visual only. The server still counts barriers, so beneath a roof
 cauldrons stay empty, fire burns on and entities stay dry (`Level.java:957`,
-`ServerLevel.java:578`). `forceSolidOff()` would change that but also 39 other `isSolid` and
+`ServerLevel.java:578`). The client predicts from its own map, though: in rain under a barrier
+roof it starts a riptide launch the server refuses (`TridentItem.java:69`, `:129`).
+
+After review, a waterlogged barrier counts for its water, the walk skips all-air sections, and
+dimensions without weather skip it. The bot read a three-tall waterlogged column at its top
+(y −60, not the dirt below) and a y 300 ceiling at the floor, or at a stone at y 100 beneath
+it; both confirmed in-world. `forceSolidOff()` would change that but also 39 other `isSolid` and
 `blocksMotion` checks (signs, item frames, farmland, enderman landing), so it is not used.
 
 ## Reference: verified signatures
