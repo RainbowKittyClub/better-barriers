@@ -49,7 +49,7 @@ public final class BarrierSync {
     private static final double MAX_REACH = 12.0;
     private static final double EDIT_REACH = 16.0;
     private static final double LOOKAHEAD_TICKS = 4.0;
-    private static final Predicate<BlockState> IS_BARRIER =
+    static final Predicate<BlockState> IS_BARRIER =
             state -> state.getBlock() instanceof BetterBarrierBlock;
     // Set while this class sends its own corrections, which the send hooks then leave alone.
     private static boolean correcting;
