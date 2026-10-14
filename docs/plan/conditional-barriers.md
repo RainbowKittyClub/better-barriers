@@ -847,13 +847,13 @@ vanilla barrier roof as the top (y −56) and all five types as the floor (y −
 grass. In-world, rain falls through every type, including where the client holds a solid barrier:
 weather follows the height map alone. Particles still stop on those, as expected.
 
-An admitted player left no dry patch, but that test was a 26.3 client on the dev server's
-ViaFabric. 26.3 counts a block in `MOTION_BLOCKING` by tag, `minecraft:blocks_motion_in_heightmap`
-(barrier included), not `blocksMotion()`; a 26.2 server sends no such tag, and that ViaFabric's
-bundled ViaVersion 5.12.1-SNAPSHOT adds none, so that client counted only fluids in its own
-updates. The server does send the revert (a bot under the gamemode roof: 25 air, then 25
-barrier). ViaVersion 5.12.1 on the live proxy adds the tag, so the limit stands there for 26.2
-and 26.3 clients alike; still to see with either.
+The limit holds on a vanilla 26.2 client. In creative under the gamemode roof, F3 read `M: -61`.
+Switching to survival there re-sent the barrier: `M` rose to -56 and rain stopped at the roof,
+then went back to -61 in creative. A bot saw the same packets on walking off (25 air, then 25
+barrier), yet walking off showed no patch on 26.2 or 26.3; cause not found. 26.3 counts a block
+by tag, `minecraft:blocks_motion_in_heightmap` (barrier included), not `blocksMotion()`. A 26.2
+server has no such tag; the dev ViaFabric's ViaVersion 5.12.1-SNAPSHOT adds none, the live proxy's
+5.12.1 does. What a 26.3 client does without it is unchecked.
 
 ## Reference: verified signatures
 
