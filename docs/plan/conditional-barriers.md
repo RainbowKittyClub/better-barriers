@@ -855,6 +855,12 @@ by tag, `minecraft:blocks_motion_in_heightmap` (barrier included), not `blocksMo
 server has no such tag; the dev ViaFabric's ViaVersion 5.12.1-SNAPSHOT adds none, the live proxy's
 5.12.1 does. What a 26.3 client does without it is unchecked.
 
+The limit is accepted: holding back reverts outside reach would add more weight than the
+patches are worth. Rain stays visual only. The server still counts barriers, so beneath a roof
+cauldrons stay empty, fire burns on and entities stay dry (`Level.java:957`,
+`ServerLevel.java:578`). `forceSolidOff()` would change that but also 39 other `isSolid` and
+`blocksMotion` checks (signs, item frames, farmland, enderman landing), so it is not used.
+
 ## Reference: verified signatures
 
 - `BlockBehaviour.getCollisionShape(BlockState, BlockGetter, BlockPos, CollisionContext)` :327,
