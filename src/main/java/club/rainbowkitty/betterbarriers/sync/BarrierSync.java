@@ -112,7 +112,7 @@ public final class BarrierSync {
                 for (int index = chunk.getSectionIndex(minY);
                         index <= chunk.getSectionIndex(maxY); index++) {
                     LevelChunkSection section = chunk.getSection(index);
-                    if (section.hasOnlyAir() || !section.maybeHas(IS_BARRIER)) {
+                    if (!mayHoldBarriers(section)) {
                         continue;
                     }
                     int sectionY = chunk.getSectionYFromSectionIndex(index) << 4;
@@ -306,5 +306,10 @@ public final class BarrierSync {
 
     private static boolean inChunk(long pos, int chunkX, int chunkZ) {
         return BlockPos.getX(pos) >> 4 == chunkX && BlockPos.getZ(pos) >> 4 == chunkZ;
+    }
+
+    // A palette check, so a section of 256-plus states always may.
+    static boolean mayHoldBarriers(LevelChunkSection section) {
+        return !section.hasOnlyAir() && section.maybeHas(IS_BARRIER);
     }
 }
