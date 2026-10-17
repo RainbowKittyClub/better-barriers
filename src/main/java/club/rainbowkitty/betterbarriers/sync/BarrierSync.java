@@ -187,6 +187,14 @@ public final class BarrierSync {
         }
     }
 
+    /** The state {@code player}'s client holds at {@code pos}: its correction, else the default. */
+    public static BlockState clientState(ServerPlayer player, BlockPos pos, BlockState state,
+            BetterBarrierBlock block) {
+        BarrierViewer viewer = BarrierViewers.peek(player);
+        return viewer != null ? viewer.clientState(pos.asLong(), state, block)
+                : block.defaultSubstitute(state);
+    }
+
     /**
      * Whether {@code player}'s client is shown open barriers as targetable light stand-ins: an
      * editor with the resource pack. Every other client is shown them as air.
