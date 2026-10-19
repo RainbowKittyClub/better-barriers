@@ -57,7 +57,11 @@ public abstract class BetterBarrierBlock extends BarrierBlock implements Polymer
     public static Properties properties(ResourceKey<Block> key) {
         return Properties.ofFullCopy(Blocks.BARRIER)
                 .isSuffocating((state, level, pos) -> false)
+                //? if >=26.3 {
+                /*.isViewBlocking((state, level, pos, nearPlane) -> false)
+                *///?} else {
                 .isViewBlocking((state, level, pos) -> false)
+                //?}
                 .setId(key);
     }
 

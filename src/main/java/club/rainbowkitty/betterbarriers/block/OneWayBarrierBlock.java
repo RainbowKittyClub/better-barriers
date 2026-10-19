@@ -1,5 +1,6 @@
 package club.rainbowkitty.betterbarriers.block;
 
+//? if <26.3
 import com.mojang.serialization.MapCodec;
 import org.joml.Quaternionf;
 import org.jspecify.annotations.Nullable;
@@ -10,6 +11,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.context.BlockPlaceContext;
+//? if <26.3
 import net.minecraft.world.level.block.BarrierBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
@@ -29,6 +31,7 @@ import club.rainbowkitty.betterbarriers.BarrierPermissions;
  * one-way plane: entered from behind, from inside, or from the side.
  */
 public final class OneWayBarrierBlock extends BetterBarrierBlock {
+    //? if <26.3
     public static final MapCodec<BarrierBlock> CODEC = simpleCodec(OneWayBarrierBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
 
@@ -38,10 +41,12 @@ public final class OneWayBarrierBlock extends BetterBarrierBlock {
                 .setValue(WATERLOGGED, false).setValue(FACING, Direction.NORTH));
     }
 
+    //? if <26.3 {
     @Override
     public MapCodec<BarrierBlock> codec() {
         return CODEC;
     }
+    //?}
 
     @Override
     protected boolean passes(BlockState state, BlockPos pos, Entity mover, Entity subject) {

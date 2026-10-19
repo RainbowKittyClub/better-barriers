@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.network.protocol.Packet;
+//? if <26.3
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -66,11 +67,14 @@ public final class LeftClicks {
 
     /** After {@code packet} was queued for {@code player}: their own swing, which they echo. */
     public static void sent(ServerPlayer player, Packet<?> packet) {
+        // A 26.3 client echoes no swing.
+        //? if <26.3 {
         if (packet instanceof ClientboundAnimatePacket animate
                 && animate.getAction() == ClientboundAnimatePacket.SWING_MAIN_HAND
                 && animate.getId() == player.getId()) {
             expectEcho(player);
         }
+        //?}
     }
 
     // The client's own crosshair test (LocalPlayer.pick): no block within block reach and no

@@ -1,5 +1,6 @@
 package club.rainbowkitty.betterbarriers.block;
 
+//? if <26.3
 import com.mojang.serialization.MapCodec;
 import org.jspecify.annotations.Nullable;
 
@@ -8,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelReader;
+//? if <26.3
 import net.minecraft.world.level.block.BarrierBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,16 +24,19 @@ import club.rainbowkitty.betterbarriers.item.BarrierComponents;
  * nobody.
  */
 public final class KeyedBarrierBlock extends BetterBarrierBlock implements EntityBlock {
+    //? if <26.3
     public static final MapCodec<BarrierBlock> CODEC = simpleCodec(KeyedBarrierBlock::new);
 
     public KeyedBarrierBlock(Properties properties) {
         super(properties);
     }
 
+    //? if <26.3 {
     @Override
     public MapCodec<BarrierBlock> codec() {
         return CODEC;
     }
+    //?}
 
     @Override
     protected boolean passes(BlockState state, BlockPos pos, Entity mover, Entity subject) {

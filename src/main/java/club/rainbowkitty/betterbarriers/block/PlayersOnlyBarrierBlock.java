@@ -1,5 +1,6 @@
 package club.rainbowkitty.betterbarriers.block;
 
+//? if <26.3
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
@@ -8,6 +9,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+//? if <26.3
 import net.minecraft.world.level.block.BarrierBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRule;
@@ -20,16 +22,19 @@ import club.rainbowkitty.betterbarriers.BarrierGameRules;
  */
 public final class PlayersOnlyBarrierBlock extends BetterBarrierBlock {
     // Typed as the superclass's, which its public codec() fixes; it still constructs this class.
+    //? if <26.3
     public static final MapCodec<BarrierBlock> CODEC = simpleCodec(PlayersOnlyBarrierBlock::new);
 
     public PlayersOnlyBarrierBlock(Properties properties) {
         super(properties);
     }
 
+    //? if <26.3 {
     @Override
     public MapCodec<BarrierBlock> codec() {
         return CODEC;
     }
+    //?}
 
     @Override
     protected boolean passes(BlockState state, BlockPos pos, Entity mover, Entity subject) {

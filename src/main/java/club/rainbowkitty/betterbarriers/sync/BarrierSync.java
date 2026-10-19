@@ -268,7 +268,11 @@ public final class BarrierSync {
         if (packet instanceof ClientboundSectionBlocksUpdatePacket section) {
             section.runUpdates((pos, state) -> follow(player, viewer, pos, state));
         } else if (packet instanceof ClientboundLevelChunkWithLightPacket chunk) {
+            //? if >=26.3 {
+            /*resendChunk(player, viewer, chunk.x(), chunk.z());
+            *///?} else {
             resendChunk(player, viewer, chunk.getX(), chunk.getZ());
+            //?}
         } else if (packet instanceof ClientboundForgetLevelChunkPacket forget) {
             dropChunk(viewer, forget.pos().x(), forget.pos().z());
         }

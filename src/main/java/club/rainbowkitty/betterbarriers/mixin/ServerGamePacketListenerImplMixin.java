@@ -7,9 +7,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+//? if >=26.3 {
+/*import net.minecraft.network.protocol.game.ServerboundPunchPacket;
+*///?} else {
 import net.minecraft.network.protocol.game.ServerboundSwingPacket;
+//?}
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+//? if >=26.3
+/*import net.minecraft.world.InteractionHand;*/
 
 import club.rainbowkitty.betterbarriers.item.LeftClicks;
 
@@ -21,10 +27,18 @@ abstract class ServerGamePacketListenerImplMixin {
     public ServerPlayer player;
 
     // TAIL runs on the server thread only: the netty-thread pass stops at the thread check.
+    //? if >=26.3 {
+    /*// 26.3 sends a left-click as a punch, always the main hand's.
+    @Inject(method = "handlePunch", at = @At("TAIL"))
+    private void betterbarriers$noteSwing(ServerboundPunchPacket packet, CallbackInfo ci) {
+        LeftClicks.swung(this.player, InteractionHand.MAIN_HAND);
+    }
+    *///?} else {
     @Inject(method = "handleAnimate", at = @At("TAIL"))
     private void betterbarriers$noteSwing(ServerboundSwingPacket packet, CallbackInfo ci) {
         LeftClicks.swung(this.player, packet.getHand());
     }
+    //?}
 
     // HEAD, since every action returns early; the netty-thread pass is skipped by hand.
     @Inject(method = "handlePlayerAction", at = @At("HEAD"))

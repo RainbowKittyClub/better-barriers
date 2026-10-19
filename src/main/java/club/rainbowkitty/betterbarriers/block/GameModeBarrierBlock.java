@@ -1,5 +1,6 @@
 package club.rainbowkitty.betterbarriers.block;
 
+//? if <26.3
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
@@ -8,6 +9,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelReader;
+//? if <26.3
 import net.minecraft.world.level.block.BarrierBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,6 +26,7 @@ import club.rainbowkitty.betterbarriers.item.GameModeBarrierItem;
  * mount carrying a player goes as they do. No spectator mode: spectators collide with nothing.
  */
 public final class GameModeBarrierBlock extends BetterBarrierBlock {
+    //? if <26.3
     public static final MapCodec<BarrierBlock> CODEC = simpleCodec(GameModeBarrierBlock::new);
     public static final EnumProperty<GameType> MODE = EnumProperty.create("mode", GameType.class,
             GameType.SURVIVAL, GameType.CREATIVE, GameType.ADVENTURE);
@@ -37,10 +40,12 @@ public final class GameModeBarrierBlock extends BetterBarrierBlock {
                 .setValue(RULE, GameModeRule.ALLOW));
     }
 
+    //? if <26.3 {
     @Override
     public MapCodec<BarrierBlock> codec() {
         return CODEC;
     }
+    //?}
 
     @Override
     protected boolean passes(BlockState state, BlockPos pos, Entity mover, Entity subject) {
