@@ -59,7 +59,3 @@ from the others. Editing can be done by holding a barrier item.
 ## Installing
 
 Drop `betterbarriers-<version>.jar` into `mods/`. Requires Fabric API and Polymer (`polymer-core`).
-
-## Building
-
-See [`docs/BUILDING.md`](docs/BUILDING.md).
