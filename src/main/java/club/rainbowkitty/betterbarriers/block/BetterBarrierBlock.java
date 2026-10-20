@@ -21,6 +21,8 @@ import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import club.rainbowkitty.betterbarriers.sync.BarrierSync;
+
 
 /**
  * A barrier that passes the entities its subclass names and blocks every other one. The server
@@ -122,6 +124,14 @@ public abstract class BetterBarrierBlock extends BarrierBlock implements Polymer
     @Override
     public BlockState getPolymerBlockState(BlockState state, @Nullable PacketContext context) {
         return defaultSubstitute(state);
+    }
+
+    /**
+     * What {@code player}'s client holds at {@code pos}, corrections included. Overrides the RKC
+     * Polymer fork's {@code PolymerBlock} default by signature alone, to build on stock Polymer.
+     */
+    public BlockState getPolymerBlockStateAt(BlockState state, BlockPos pos, ServerPlayer player) {
+        return BarrierSync.clientState(player, pos, state, this);
     }
 
     @Override
