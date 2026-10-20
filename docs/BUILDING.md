@@ -15,7 +15,7 @@ This file covers only where this mod departs from it.
   are not.
 - **No datagen.** Lang, tags and the mixin config are static resources.
 - **Testing** beyond `./gradlew build` needs the dev server (`scripts/devserver.sh
-  rkc/mods/better-barriers start`, port 25620) with ViaFabric + ViaBackwards and LuckPerms in
+  rkc/mods/better-barriers start`; its port is in `run/server.properties`) with ViaFabric + ViaBackwards and LuckPerms in
   `run/mods`, then `node scripts/loadtest/better-barriers.js` for the legs and
   `better-barriers-load.js` for the load test; both scripts say what they need at the top.
   The two Via jars crash the dev client's multiplayer screen (`run/client/mods` is the same
